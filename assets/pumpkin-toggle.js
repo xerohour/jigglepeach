@@ -107,7 +107,12 @@
     const btn = document.createElement("button");
     btn.type = "button";
     btn.id = BTN_ID;
-    if (sample) btn.className = sample.className;
+    // Use the game's .switch pill-button class so the toggle matches the
+    // native Options controls (dark pill, highlighted when aria-pressed).
+    btn.className = "switch";
+    if (sample && sample.className && !/switch/.test(sample.className)) {
+      btn.className += " " + sample.className;
+    }
     const on = isPumpkin();
     btn.setAttribute("aria-pressed", on ? "true" : "false");
     btn.textContent = on ? "\uD83C\uDF83 Pumpkin mode: On" : "\uD83C\uDF83 Pumpkin mode: Off";
