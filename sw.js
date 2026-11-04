@@ -1,5 +1,5 @@
 // Bump on a release that has to drop everything the browser is holding; hashed asset names cover the rest.
-const CACHE = "peachy-keen-v10";
+const CACHE = "peachy-keen-v11";
 
 const PAGE = self.registration.scope;
 

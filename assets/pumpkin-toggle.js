@@ -3,76 +3,37 @@
 // Adds a "Pumpkin mode" toggle button to the "The peach" section of the
 // shop's Options tab, next to Firmness / Spice / Voice.
 //
-// How the game picks its model: the index.html head script reads
-// localStorage["peachy-keen-intro-skin"] ("lantern" = pumpkin, else peach)
-// and sets documentElement.dataset.model before the bundle boots. BUT the
-// save file (localStorage["peachy-keen-idle"].options.skin) is the real
-// source of truth: the game's Rn() syncs the intro-skin FROM the save on
-// every boot and force-reloads if the loaded model disagrees with the save.
-// So the toggle must update BOTH, or the game "corrects" the pumpkin back
-// to a peach and reloads a second time. Toggling reloads through the game's
-// model-swap flow (sessionStorage["peachy-keen-swap"]) so the game drops
-// straight back into play instead of replaying the intro.
+// How it works: the game's head script supports a ?model=pumpkin URL param
+// that overrides the saved skin ("overrides the saved skin for testing").
+// The toggle navigates to ?model=pumpkin (or removes it), which forces the
+// pumpkin model on boot and makes the game's Rn() sync accept it instead
+// of "correcting" back to the save's skin and force-reloading. This avoids
+// editing the save file entirely. The swap flag
+// (sessionStorage["peachy-keen-swap"]) drops straight back into play
+// instead of replaying the intro.
 //
 // The shop is rendered by the game's minified bundle, whose exact aria
 // attributes aren't stable to guess at, so the Options panel and its
 // "The peach" section are located with several fallback strategies
 // instead of one brittle selector.
 (() => {
-  const SKIN_KEY = "peachy-keen-intro-skin";
-  const SAVE_KEY = "peachy-keen-idle";
-  const PREV_KEY = "peachy-keen-prev-skin";
   const SWAP_KEY = "peachy-keen-swap";
   const BTN_ID = "pumpkin-mode-toggle";
-  const LANTERN = "lantern";
 
-  const store = {
-    get(k) {
-      try {
-        return localStorage.getItem(k);
-      } catch {
-        return null;
-      }
-    },
-    set(k, v) {
-      try {
-        localStorage.setItem(k, v);
-      } catch {}
-    },
-  };
-
-  // The game's save is the source of truth for the skin; fall back to the
-  // intro-skin flag when there is no save yet.
-  function currentSkin() {
+  function isPumpkin() {
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (raw) {
-        const save = JSON.parse(raw);
-        if (save && save.options && typeof save.options.skin === "string") {
-          return save.options.skin;
-        }
-      }
+      const m = new URL(location.href).searchParams.get("model");
+      if (m === "pumpkin") return true;
+      if (m === "peach") return false;
     } catch {}
-    return store.get(SKIN_KEY) || "classic";
-  }
-
-  function setSaveSkin(skin) {
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (!raw) return false;
-      const save = JSON.parse(raw);
-      if (!save || typeof save !== "object" || !save.options) return false;
-      save.options.skin = skin;
-      localStorage.setItem(SAVE_KEY, JSON.stringify(save));
-      return true;
+      return localStorage.getItem("peachy-keen-intro-skin") === "lantern";
     } catch {
       return false;
     }
   }
 
-  const isPumpkin = () => currentSkin() === LANTERN;
-
-  // Guard against double-taps: the reload takes a moment, and a second tap
+  // Guard against double-taps: navigation takes a moment, and a second tap
   // landing before unload would flip the toggle right back off.
   let busy = false;
 
@@ -85,24 +46,16 @@
     busy = true;
     const btn = document.getElementById(BTN_ID);
     if (btn) btn.disabled = true;
-    const wasPumpkin = isPumpkin();
-    const want = wasPumpkin ? store.get(PREV_KEY) || "classic" : LANTERN;
-    if (!wasPumpkin) store.set(PREV_KEY, currentSkin());
-    // Update the save FIRST (it's the source of truth), then the intro flag.
-    // The game does not save on unload, so this survives the reload.
-    setSaveSkin(want);
-    store.set(SKIN_KEY, want);
-    // Verify the writes landed before reloading; otherwise we'd reboot
-    // into the wrong skin with no way back.
-    if (store.get(SKIN_KEY) !== want || currentSkin() !== want) {
-      busy = false;
-      if (btn) btn.disabled = false;
-      return;
+    const url = new URL(location.href);
+    if (isPumpkin()) {
+      url.searchParams.delete("model");
+    } else {
+      url.searchParams.set("model", "pumpkin");
     }
     try {
       sessionStorage.setItem(SWAP_KEY, "1");
     } catch {}
-    location.reload();
+    location.href = url.toString();
   }
 
   function optionsPanel() {
