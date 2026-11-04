@@ -35,17 +35,29 @@
 
   const isPumpkin = () => store.get(SKIN_KEY) === "lantern";
 
+  // Guard against double-taps: the reload takes a moment, and a second tap
+  // landing before unload would flip the toggle right back off.
+  let busy = false;
+
   function toggle(e) {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    if (isPumpkin()) {
-      // Back to whatever skin was active before pumpkin mode.
-      store.set(SKIN_KEY, store.get(PREV_KEY) || "classic");
-    } else {
-      store.set(PREV_KEY, store.get(SKIN_KEY) || "classic");
-      store.set(SKIN_KEY, "lantern");
+    if (busy) return;
+    busy = true;
+    const btn = document.getElementById(BTN_ID);
+    if (btn) btn.disabled = true;
+    const wasPumpkin = isPumpkin();
+    const want = wasPumpkin ? store.get(PREV_KEY) || "classic" : "lantern";
+    if (!wasPumpkin) store.set(PREV_KEY, store.get(SKIN_KEY) || "classic");
+    store.set(SKIN_KEY, want);
+    // Verify the write landed before reloading; otherwise we'd reboot
+    // into the wrong skin with no way back.
+    if (store.get(SKIN_KEY) !== want) {
+      busy = false;
+      if (btn) btn.disabled = false;
+      return;
     }
     try {
       sessionStorage.setItem(SWAP_KEY, "1");
