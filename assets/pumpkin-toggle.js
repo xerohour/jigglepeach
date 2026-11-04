@@ -37,20 +37,22 @@
   // landing before unload would flip the toggle right back off.
   let busy = false;
 
-  function toggle(e) {
+  function toggle(e, wantOn) {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     if (busy) return;
+    // No-op if already in the requested state.
+    if (wantOn === isPumpkin()) return;
     busy = true;
-    const btn = document.getElementById(BTN_ID);
-    if (btn) btn.disabled = true;
+    const row = document.getElementById(BTN_ID);
+    if (row) row.style.pointerEvents = "none";
     const url = new URL(location.href);
-    if (isPumpkin()) {
-      url.searchParams.delete("model");
-    } else {
+    if (wantOn) {
       url.searchParams.set("model", "pumpkin");
+    } else {
+      url.searchParams.delete("model");
     }
     try {
       sessionStorage.setItem(SWAP_KEY, "1");
@@ -101,25 +103,49 @@
     const panel = optionsPanel();
     if (!panel) return;
     const section = peachSection(panel);
-    const host = section || panel;
-    // Borrow the game's own button styling when it's available.
-    const sample = host.querySelector("button");
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.id = BTN_ID;
-    // Use the game's .switch pill-button class so the toggle matches the
-    // native Options controls (dark pill, highlighted when aria-pressed).
-    btn.className = "switch";
-    if (sample && sample.className && !/switch/.test(sample.className)) {
-      btn.className += " " + sample.className;
-    }
+    if (!section) return;
+    // Find the opt-group (the colored box) holding the option rows.
+    const group =
+      section.querySelector(".opt-group") ||
+      section.querySelector("div:has(> .opt-row)") ||
+      section;
     const on = isPumpkin();
-    btn.setAttribute("aria-pressed", on ? "true" : "false");
-    btn.textContent = on ? "\uD83C\uDF83 Pumpkin mode: On" : "\uD83C\uDF83 Pumpkin mode: Off";
-    btn.title = "Swap the peach for a pumpkin (reloads the game)";
-    btn.addEventListener("click", toggle);
-    if (section) section.appendChild(btn);
-    else host.insertBefore(btn, host.firstChild);
+
+    // Build a native-looking option row: label + On/Off radio switches.
+    const row = document.createElement("div");
+    row.className = "opt-row";
+    row.id = BTN_ID;
+
+    const label = document.createElement("span");
+    label.className = "opt-label";
+    label.textContent = "🎃 Pumpkin Mode";
+    row.appendChild(label);
+
+    const radios = document.createElement("div");
+    radios.className = "pill-track";
+    radios.setAttribute("role", "radiogroup");
+    radios.setAttribute("aria-label", "Pumpkin Mode");
+    radios.style.setProperty("--n", "2");
+    // Tighten the two switches into one segmented control.
+    radios.style.display = "inline-flex";
+    radios.style.gap = "4px";
+    row.appendChild(radios);
+
+    const mk = (val, text) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "switch";
+      // aria-pressed drives the game's highlighted style for the active choice.
+      b.setAttribute("aria-pressed", String(on === (val === "on")));
+      b.textContent = text;
+      b.addEventListener("click", (e) => toggle(e, val === "on"));
+      radios.appendChild(b);
+      return b;
+    };
+    mk("off", "Off");
+    mk("on", "On");
+
+    group.appendChild(row);
   }
 
   // The shop renders dynamically; re-insert if the game rebuilds the panel.
