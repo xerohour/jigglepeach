@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en" class="fonts-later">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#3b0f1e" />
+    <meta name="description" content="A squishy 3D peach idle game." />
+    <title>Jiggle Peach</title>
+    <link rel="canonical" href="https://jigglepeach.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://jigglepeach.com/" />
+    <meta property="og:site_name" content="Jiggle Peach" />
+    <meta property="og:title" content="Jiggle Peach" />
+    <meta property="og:description" content="A squishy 3D peach idle game." />
+    <meta
+      property="og:image"
+      content="https://jigglepeach.com/peachy-keen/share.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="A ripe 3D peach under the title Jiggle Peach"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍑</text></svg>"
+    />
+    <link rel="apple-touch-icon" href="/peachy-keen/apple-touch-icon.png" />
+    <link rel="manifest" href="/peachy-keen/manifest.webmanifest" />
+    <link
+      rel="preload"
+      as="image"
+      href="/peachy-keen/intro-peach.webp"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/assets/fraunces-title-B2C56b5G.woff2"
+      crossorigin
+    />
+    <script>
+      (() => {
+        let skin = "classic";
+        try {
+          skin = localStorage.getItem("peachy-keen-intro-skin") || skin;
+          // Fonts wait for the game code only on a first visit; after that they come from the cache.
+          if (
+            localStorage.getItem("peachy-keen-loaded") ||
+            localStorage.getItem("peachy-keen-loaded-pumpkin")
+          )
+            document.documentElement.classList.remove("fonts-later");
+        } catch {}
+        // A visit link shows the owner's peach, set by the Worker on the page.
+        try {
+          const visit = JSON.parse(document.documentElement.dataset.visit);
+          if (visit.look.skin) skin = visit.look.skin;
+        } catch {}
+        // The Halloween skin is its own model; ?model= overrides the saved skin for testing.
+        const model = new URLSearchParams(location.search).get("model");
+        const pumpkin =
+          model === "pumpkin" || (model !== "peach" && skin === "lantern");
+        document.documentElement.dataset.model = pumpkin ? "pumpkin" : "peach";
+        if (pumpkin) {
+          const icon = document.querySelector('link[rel="icon"]');
+          icon.setAttribute(
+            "href",
+            icon.getAttribute("href").replace("🍑", "🎃"),
+          );
+        }
+        if (!["gold", "midnight", "chrome"].includes(skin)) skin = "classic";
+        const ripe = (id) =>
+          `/peachy-keen/intro-peach-ripe${id === "classic" ? "" : `-${id}`}.webp`;
+        const preload = (href) => {
+          const link = document.createElement("link");
+          link.rel = "preload";
+          link.as = "image";
+          link.href = href;
+          document.head.append(link);
+        };
+        const root = document.documentElement;
+        // A model swap reloads straight into play: covered until the grey shape shows, then only the shape fills.
+        try {
+          if (sessionStorage.getItem("peachy-keen-swap")) {
+            sessionStorage.removeItem("peachy-keen-swap");
+            root.dataset.swap = "";
+          }
+        } catch {}
+        const still = pumpkin
+          ? "/peachy-keen/intro-pumpkin-ripe.webp"
+          : ripe(skin);
+        if (pumpkin) {
+          const grey = "/peachy-keen/intro-pumpkin.webp";
+          root.dataset.greyStill = grey;
+          root.style.setProperty("--grey-still", `url("${grey}")`);
+          preload(grey);
+        }
+        root.dataset.ripeStill = still;
+        preload(still);
+        if (skin !== "classic" && !pumpkin) preload(ripe("classic"));
+      })();
+    </script>
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Jiggle Peach" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <!-- iOS paints white on a cold launch without these. -->
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+      href="/peachy-keen/splash-320x568-2x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+      href="/peachy-keen/splash-320x568-2x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+      href="/peachy-keen/splash-375x667-2x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+      href="/peachy-keen/splash-375x667-2x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-414x736-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-414x736-3x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-375x812-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-375x812-3x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-390x844-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-390x844-3x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-393x852-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-393x852-3x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-402x874-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-402x874-3x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+      href="/peachy-keen/splash-414x896-2x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+      href="/peachy-keen/splash-414x896-2x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-414x896-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-414x896-3x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-420x912-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-420x912-3x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-428x926-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-428x926-3x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-430x932-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-430x932-3x-landscape.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/peachy-keen/splash-440x956-3x-portrait.png"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+      href="/peachy-keen/splash-440x956-3x-landscape.png"
+    />
+    <script type="module" crossorigin src="/assets/index-BrPgstJA.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/three-D4ATCD1o.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-ChqvKEbb.css">
+  </head>
+  <body class="is-intro">
+    <section class="score">
+      <p class="score-count">
+        <span id="count">0</span> <span id="count-unit">smacks</span>
+      </p>
+      <p id="bursts" aria-live="polite" hidden></p>
+      <div id="meters" class="meters">
+        <div class="meter">
+          <span>Heat</span>
+          <span
+            class="meter-track"
+            role="meter"
+            aria-label="Heat"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            ><span id="heat-fill" class="meter-fill heat"></span
+          ></span>
+        </div>
+        <div class="meter">
+          <span>Oil</span>
+          <span
+            class="meter-track"
+            role="meter"
+            aria-label="Oil"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            ><span id="oil-fill" class="meter-fill oil"></span
+          ></span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="hints">
+      <p id="hint-tip" class="is-learned">Tap twice quickly to clap.</p>
+      <p data-hint="swipe" data-tool="hand">
+        Swipe across the peach to smack it.
+      </p>
+      <p id="hint-massage" data-hint="massage" hidden>
+        Move slowly over the peach to rub it.
+      </p>
+      <p id="hint-grab" data-hint="grab" data-tool="hand">
+        Press and drag to pull it.
+      </p>
+      <p data-hint="kiss" data-tool="lips">
+        Tap the peach to kiss it, or hold for a long kiss.
+      </p>
+      <p data-hint="buzz" data-tool="buzz">
+        Press and hold on the peach to buzz it.
+      </p>
+      <p data-hint="coins" data-tool="coins">
+        Tap or swipe fast to toss a coin, or hold to make it rain.
+      </p>
+      <p id="hint-rub" data-hint="carry">Carry the bottle over to oil it up.</p>
+    </footer>
+
+    <p id="fps" class="fps-corner" aria-hidden="true" hidden></p>
+
+    <div class="ui settings-dock"></div>
+
+    <div id="vignette" class="vignette" aria-hidden="true"></div>
+    <p id="talk" class="talk" aria-live="polite"></p>
+    <div id="combos" class="combos" aria-hidden="true"></div>
+    <div id="bottle" class="ui bottle" aria-hidden="true"></div>
+    <svg
+      id="bottle-stream"
+      class="bottle-stream"
+      aria-hidden="true"
+      width="1"
+      height="1"
+    ></svg>
+    <div class="cursor-layer">
+      <div id="cursor" class="cursor" aria-hidden="true"><span></span></div>
+    </div>
+    <svg class="retro-filters" width="0" height="0" aria-hidden="true">
+      <filter
+        id="retro-pixels"
+        filterUnits="userSpaceOnUse"
+        primitiveUnits="userSpaceOnUse"
+        color-interpolation-filters="sRGB"
+      >
+        <feFlood class="retro-pixels-dot" flood-color="#000" />
+        <feComposite class="retro-pixels-cell" x="0" y="0" />
+        <feTile result="grid" />
+        <feComposite in="SourceGraphic" in2="grid" operator="in" />
+        <feComponentTransfer>
+          <feFuncA type="discrete" tableValues="0 1" />
+        </feComponentTransfer>
+        <feMorphology class="retro-pixels-grow" operator="dilate" />
+      </filter>
+    </svg>
+
+    <div id="intro" class="ui intro">
+      <div id="intro-shape" class="intro-shape" aria-hidden="true">
+        <canvas id="intro-fill"></canvas>
+      </div>
+      <script>
+        // iOS draws the launch image at screen size, which can differ from the page; start the still there.
+        (() => {
+          const shape = document.getElementById("intro-shape");
+          const root = document.documentElement;
+          const show = () => {
+            shape.classList.add("is-shown");
+            if (root.dataset.swap === "") root.dataset.swap = "out";
+          };
+          const standalone =
+            navigator.standalone ||
+            matchMedia("(display-mode: standalone), (display-mode: fullscreen)")
+              .matches;
+          // In a browser the still fades in once it has loaded; the launch image already shows it in the app.
+          if (!standalone) {
+            const still = new Image();
+            still.onload = show;
+            still.onerror = show;
+            still.src =
+              document.documentElement.dataset.greyStill ??
+              "/peachy-keen/intro-peach.webp";
+            return;
+          }
+          show();
+          const long = Math.max(screen.width, screen.height);
+          const short = Math.min(screen.width, screen.height);
+          const portrait = innerHeight >= innerWidth;
+          const w = portrait ? short : long;
+          const h = portrait ? long : short;
+          shape.style.top = `${h / 2}px`;
+          shape.style.width = `${Math.min(h, w * 1.2308)}px`;
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+              shape.classList.add("is-settling");
+              shape.style.top = "";
+              shape.style.width = "";
+            }),
+          );
+        })();
+      </script>
+      <h1 id="intro-title" class="intro-title" aria-label="Jiggle Peach">
+        <span class="intro-letter" aria-hidden="true">J</span
+        ><span class="intro-letter" aria-hidden="true">i</span
+        ><span class="intro-letter" aria-hidden="true">g</span
+        ><span class="intro-letter" aria-hidden="true">g</span
+        ><span class="intro-letter" aria-hidden="true">l</span
+        ><span class="intro-letter" aria-hidden="true">e</span
+        ><span class="intro-letter is-space" aria-hidden="true">&nbsp;</span
+        ><span class="intro-letter" aria-hidden="true">P</span
+        ><span class="intro-letter" aria-hidden="true">e</span
+        ><span class="intro-letter" aria-hidden="true">a</span
+        ><span class="intro-letter" aria-hidden="true">c</span
+        ><span class="intro-letter" aria-hidden="true">h</span>
+      </h1>
+      <script>
+        document.fonts
+          ?.load('italic 560 44px "Fraunces Title"')
+          .then(() =>
+            document.getElementById("intro").classList.add("has-title"),
+          );
+      </script>
+      <script>
+        // The Halloween pumpkin swaps the name and the hints that say "peach".
+        if (document.documentElement.dataset.model === "pumpkin") {
+          const name = "Jiggle Pumpkin";
+          document.title = name;
+          const title = document.getElementById("intro-title");
+          title.setAttribute("aria-label", name);
+          const model = title.querySelector(".intro-letter:not(.is-space)");
+          const space = title.querySelector(".is-space");
+          title.replaceChildren(
+            ...[...name].map((ch) => {
+              const span = (ch === " " ? space : model).cloneNode(true);
+              if (ch !== " ") span.textContent = ch;
+              return span;
+            }),
+          );
+          document.querySelectorAll("[data-hint]").forEach((p) => {
+            p.textContent = p.textContent.replace("the peach", "the pumpkin");
+          });
+        }
+      </script>
+      <div class="intro-foot">
+        <p id="intro-status" class="intro-status" aria-live="polite">
+          Ripening
+        </p>
+        <p id="intro-note" class="intro-note" hidden></p>
+        <div id="intro-help" class="intro-help" hidden>
+          <p id="intro-help-text"></p>
+          <button type="button" id="intro-retry">Try again</button>
+        </div>
+      </div>
+      <p class="intro-copyright">© 2026 Maanraket. All rights reserved.</p>
+    </div>
+    <div class="ui intro-sound" role="group" aria-label="Sound">
+      <button
+        type="button"
+        id="intro-volume"
+        aria-label="Sound"
+        aria-pressed="true"
+      >
+        <svg class="sound-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />
+          <path
+            class="sound-on"
+            pathLength="1"
+            d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.5a7.8 7.8 0 0 1 0 11"
+          />
+          <path class="sound-off" pathLength="1" d="M16 9.5l5 5M21 9.5l-5 5" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        id="intro-music"
+        aria-label="Music"
+        aria-pressed="true"
+      >
+        <svg class="sound-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 17.5V5.5l10-2v12" />
+          <circle cx="6.5" cy="17.5" r="2.5" />
+          <circle cx="16.5" cy="15.5" r="2.5" />
+          <path class="sound-off" pathLength="1" d="M3.5 3.5l17 17" />
+        </svg>
+      </button>
+    </div>
+
+    <script>
+      // A classic script, so a game bundle that never arrives or never starts still gets a way out.
+      (() => {
+        const SLOW_MS = 20000;
+        const LOST_RETRY = "peachy-keen-lost-retry";
+        const RESTORE_WAIT_MS = 3000;
+        const LOST_AT = "peachy-keen-lost-at";
+        // Chrome blocks WebGL on a site for 2 minutes once it loses two contexts within 2 minutes.
+        const GPU_BLOCK_MS = 2 * 60 * 1000;
+        const lostRecently = () => {
+          try {
+            return (
+              Date.now() - Number(localStorage.getItem(LOST_AT)) < GPU_BLOCK_MS
+            );
+          } catch {
+            return false;
+          }
+        };
+        const SLOW_LOAD_S = 20;
+        // A small share of all loads also reports, so slow loads can be counted against the rest.
+        const LOAD_SAMPLE = 0.02;
+        const intro = document.getElementById("intro");
+        const status = document.getElementById("intro-status");
+        const help = document.getElementById("intro-help");
+        const helpText = document.getElementById("intro-help-text");
+        const retry = document.getElementById("intro-retry");
+        const offline = () => navigator.onLine === false;
+        let booted = false;
+        let done = false;
+        let failed = false;
+        let reloading = false;
+        let importFailed = false;
+        let timer = 0;
+        const REPORT_LIMIT = 5;
+        const PLAYED_MS = 60000;
+        const reported = new Set();
+        let step = "";
+        // First and last second each loading phase (files, shaders, lights) reported progress.
+        const phases = {};
+        // Milliseconds from page start to each loading step, and summed milliseconds per kind of work.
+        const marks = {};
+        const spent = {};
+        let gpu;
+        let limits;
+        const readGpu = () => {
+          const gl = window.peachyBoot?.gl;
+          if (!gl || gpu !== undefined || gl.isContextLost()) return;
+          const ext = gl.getExtension("WEBGL_debug_renderer_info");
+          gpu = gl.getParameter(
+            ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER,
+          );
+          // Shader size limits differ by GPU and decide which shaders link.
+          limits = [
+            gl.MAX_FRAGMENT_UNIFORM_VECTORS,
+            gl.MAX_VERTEX_UNIFORM_VECTORS,
+            gl.MAX_VARYING_VECTORS,
+            gl.MAX_TEXTURE_IMAGE_UNITS,
+          ].map((name) => gl.getParameter(name));
+        };
+        const graphicsInfo = () => {
+          const gl = window.peachyBoot?.gl;
+          if (!gl) return undefined;
+          readGpu();
+          return {
+            lost: gl.isContextLost(),
+            lostAt: window.peachyBoot.lostAt,
+            gpu,
+            limits,
+          };
+        };
+        let hiddenMs = 0;
+        let hiddenSince = document.hidden ? performance.now() : null;
+        const hiddenFor = () =>
+          hiddenMs +
+          (hiddenSince === null ? 0 : performance.now() - hiddenSince);
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) hiddenSince ??= performance.now();
+          else if (hiddenSince !== null) {
+            hiddenMs += performance.now() - hiddenSince;
+            hiddenSince = null;
+          }
+        });
+        const crashCount = () => {
+          try {
+            return JSON.parse(localStorage.getItem("peachy-keen-memory"))
+              ?.crashes;
+          } catch {
+            return undefined;
+          }
+        };
+        // The entry script tag comes after this script, so it is looked up when needed.
+        const entrySrc = () =>
+          document
+            .querySelector('script[src*="/assets/index-"]')
+            ?.getAttribute("src");
+        // Leaving the page cancels its downloads, and those errors are not faults.
+        let leaving = false;
+        const leave = () => {
+          leaving = true;
+        };
+        addEventListener("beforeunload", leave);
+        addEventListener("pagehide", leave);
+        addEventListener("pageshow", () => {
+          leaving = false;
+        });
+        const report = (kind, detail = {}) => {
+          if (
+            leaving ||
+            reported.size >= REPORT_LIMIT ||
+            location.hostname === "localhost"
+          )
+            return;
+          const key = `${kind}|${detail.message ?? ""}`;
+          if (reported.has(key)) return;
+          reported.add(key);
+          try {
+            navigator.sendBeacon(
+              "/api/error",
+              JSON.stringify({
+                kind,
+                ...detail,
+                build: "d3dbdaf",
+                entry: entrySrc(),
+                booted,
+                loaded: done,
+                seconds: Math.round(performance.now() / 1000),
+                step,
+                graphics: graphicsInfo(),
+                memory: navigator.deviceMemory,
+                crashes: crashCount(),
+                hidden: Math.round(hiddenFor() / 1000),
+                screen: `${innerWidth}x${innerHeight}@${devicePixelRatio}`,
+                online: navigator.onLine,
+              }),
+            );
+          } catch {}
+        };
+        const RESTORE_GRACE_MS = 2000;
+        // Three can throw on the dead context before the lost event, and the error can surface after the restore; the "lost" report covers those.
+        const contextTrouble = () => {
+          const boot = window.peachyBoot;
+          return (
+            boot?.gl?.isContextLost() ||
+            performance.now() - (boot?.restoredAt ?? -Infinity) <
+              RESTORE_GRACE_MS
+          );
+        };
+        const reportError = (kind, error) => {
+          if (contextTrouble()) return;
+          report(kind, {
+            message: String(error?.message ?? error).slice(0, 500),
+            stack: error?.stack?.slice(0, 3000),
+          });
+        };
+        const showHelp = (text, canRetry = true) => {
+          helpText.textContent = text;
+          retry.hidden = !canRetry;
+          help.hidden = false;
+          intro.classList.add("has-fonts");
+          delete document.documentElement.dataset.swap;
+        };
+        // A hidden page may get no frames, so time away is not a stall.
+        const wait = () => {
+          clearTimeout(timer);
+          if (document.hidden) return;
+          const due = performance.now() + SLOW_MS;
+          timer = setTimeout(() => {
+            if (document.hidden) return;
+            // A timer that runs late means the page was busy, such as a long shader build, not stalled.
+            if (performance.now() - due > 1000) {
+              wait();
+              return;
+            }
+            report("stuck");
+            showHelp(
+              offline()
+                ? "Waiting for a connection."
+                : "It seems like something got stuck. Trying again usually fixes this.",
+            );
+          }, SLOW_MS);
+        };
+        document.addEventListener("visibilitychange", () => {
+          if (!done && !failed) wait();
+        });
+        retry.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          retry.disabled = true;
+          // A broken file in the offline cache would come back on reload.
+          if (failed && !offline() && window.caches) {
+            try {
+              const names = await caches.keys();
+              await Promise.all(
+                names
+                  .filter((n) => n.startsWith("peachy-keen"))
+                  .map((n) => caches.delete(n)),
+              );
+            } catch {}
+          }
+          // A stuck sw.js can fail every file it serves until the page is closed; the next load registers it again.
+          if (importFailed) {
+            try {
+              const registrations =
+                await navigator.serviceWorker?.getRegistrations();
+              await Promise.all(
+                (registrations ?? []).map((r) => r.unregister()),
+              );
+            } catch {}
+          }
+          location.reload();
+        });
+        const STATS_SAMPLE = 1;
+        const STATS_LIMIT = 3;
+        const STATS_MORE_PLAY_MS = 30000;
+        const DAY_MS = 86400000;
+        const statsVisit = Math.random().toString(36).slice(2, 10);
+        const statsSampled = Math.random() < STATS_SAMPLE;
+        let readyMs = 0;
+        let startedMs = 0;
+        let tapMs = 0;
+        let playFrom = 0;
+        let playMs = 0;
+        let gameStats = null;
+        let statsSent = 0;
+        let statsSentPlayMs = 0;
+        let statsSentStage = "";
+        const statsAllowed = () => {
+          if (!statsSampled || location.hostname === "localhost") return false;
+          if (navigator.globalPrivacyControl) return false;
+          try {
+            return localStorage.getItem("peachy-keen-stats") !== "off";
+          } catch {
+            return true;
+          }
+        };
+        const firstToday = () => {
+          const today = String(Math.floor(Date.now() / DAY_MS));
+          try {
+            if (localStorage.getItem("peachy-keen-stats-day") === today)
+              return 0;
+            localStorage.setItem("peachy-keen-stats-day", today);
+          } catch {}
+          return 1;
+        };
+        const sendStats = () => {
+          if (statsSent >= STATS_LIMIT || !statsAllowed()) return;
+          const stage = failed
+            ? "failed"
+            : startedMs
+              ? "played"
+              : done
+                ? "ready"
+                : "loading";
+          if (
+            stage === statsSentStage &&
+            playMs - statsSentPlayMs < STATS_MORE_PLAY_MS
+          )
+            return;
+          let fields = {};
+          try {
+            fields = gameStats?.() ?? {};
+          } catch {}
+          try {
+            navigator.sendBeacon(
+              "/api/stats",
+              JSON.stringify({
+                ...fields,
+                visit: statsVisit,
+                build: "d3dbdaf",
+                stage,
+                step,
+                device: matchMedia("(pointer: coarse)").matches
+                  ? "touch"
+                  : "mouse",
+                part: statsSent,
+                loadMs: readyMs,
+                tapMs,
+                shownMs: Math.round(performance.now() - hiddenFor()),
+                playS: Math.round(playMs / 1000),
+                firstToday: statsSent ? 0 : firstToday(),
+              }),
+            );
+            statsSent++;
+            statsSentPlayMs = playMs;
+            statsSentStage = stage;
+          } catch {}
+        };
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) {
+            if (startedMs) playFrom = performance.now();
+            return;
+          }
+          if (playFrom) playMs += performance.now() - playFrom;
+          playFrom = 0;
+          sendStats();
+        });
+        const fruit = document.documentElement.dataset.model;
+        window.peachyBoot = {
+          get failed() {
+            return failed;
+          },
+          booted() {
+            booted = true;
+          },
+          progress(name) {
+            if (name) {
+              step = name;
+              const at = Math.round(performance.now() / 1000);
+              const phase = name.split(" ")[0];
+              phases[phase] = [phases[phase]?.[0] ?? at, at];
+            }
+            if (done || failed) return;
+            help.hidden = true;
+            wait();
+          },
+          mark(name) {
+            marks[name] ??= Math.round(performance.now());
+          },
+          spend(name, ms) {
+            spent[name] = Math.round((spent[name] ?? 0) + ms);
+          },
+          ready(counts) {
+            if (reloading) {
+              location.reload();
+              return;
+            }
+            done = true;
+            readyMs = Math.round(performance.now() - hiddenFor());
+            clearTimeout(timer);
+            help.hidden = true;
+            const timing = {
+              phases,
+              marks,
+              spent,
+              counts,
+              ms: Math.round(performance.now()),
+            };
+            if (performance.now() / 1000 > SLOW_LOAD_S) report("slow", timing);
+            else if (Math.random() < LOAD_SAMPLE) report("load", timing);
+            try {
+              sessionStorage.removeItem(LOST_RETRY);
+            } catch {}
+          },
+          // A phone short on memory drops the WebGL context; one fresh load often fits, a second drop means the device.
+          lost() {
+            try {
+              localStorage.setItem(LOST_AT, String(Date.now()));
+            } catch {}
+            if (done || failed || reloading) return;
+            report("lost");
+            let retried = false;
+            try {
+              retried = sessionStorage.getItem(LOST_RETRY) === "1";
+              sessionStorage.setItem(LOST_RETRY, "1");
+            } catch {}
+            if (!retried) {
+              // The GPU may still be restarting right after a loss, so the reload waits for the restore, up to 3 s.
+              reloading = true;
+              const reload = () => location.reload();
+              window.peachyBoot.gl?.canvas.addEventListener(
+                "webglcontextrestored",
+                reload,
+              );
+              setTimeout(reload, RESTORE_WAIT_MS);
+              return;
+            }
+            failed = true;
+            clearTimeout(timer);
+            intro.classList.add("is-stuck");
+            status.textContent = "The graphics crashed twice.";
+            showHelp("Close other tabs, wait 2 minutes, then try again.");
+          },
+          started(fields) {
+            gameStats = fields;
+            if (startedMs) return;
+            startedMs = performance.now();
+            tapMs = Math.round(startedMs - hiddenFor());
+            playFrom = document.hidden ? 0 : startedMs;
+          },
+          report: reportError,
+          reportLag: (detail) => report("lag", detail),
+          readGpu,
+          fail(graphics = false) {
+            if (done || failed || reloading) return;
+            if (window.peachyBoot.gl?.isContextLost()) {
+              window.peachyBoot.lost();
+              return;
+            }
+            report("fail", { graphics });
+            failed = true;
+            clearTimeout(timer);
+            intro.classList.add("is-stuck");
+            if (graphics && lostRecently()) {
+              status.textContent = "The graphics crashed.";
+              showHelp("Wait 2 minutes, then try again.");
+            } else if (graphics) {
+              status.textContent = `This browser can't draw the ${fruit}.`;
+              showHelp(
+                "Turn on hardware acceleration, update your graphics driver, or try another browser.",
+                false,
+              );
+            } else if (offline()) {
+              status.textContent = "No connection.";
+              showHelp(
+                `The ${fruit} needs the internet to load. Nothing is lost.`,
+              );
+            } else {
+              status.textContent = `This ${fruit} didn't ripen.`;
+              showHelp("Nothing is lost. Try again for a fresh one.");
+            }
+          },
+        };
+        addEventListener("error", (e) => {
+          // Errors from browser extensions carry another file's address and are not the game's.
+          // Browsers fire the ResizeObserver loop warning on harmless layout passes.
+          if (
+            e.filename?.startsWith(location.origin) &&
+            !contextTrouble() &&
+            !/ResizeObserver loop/.test(e.message)
+          )
+            report("error", {
+              message: e.message,
+              source: `${e.filename}:${e.lineno}:${e.colno}`,
+              stack: e.error?.stack?.slice(0, 3000),
+            });
+          // Scripts a browser or wallet injects (window.ethereum, __firefox__) report the page itself as their file.
+          const fromGame =
+            e.filename?.startsWith(location.origin) &&
+            e.filename.split(/[?#]/)[0] !== location.origin + location.pathname;
+          if (!booted && fromGame) peachyBoot.fail(/WebGL/.test(e.message));
+        });
+        addEventListener("unhandledrejection", (e) =>
+          reportError("rejection", e.reason),
+        );
+        // GET goes through sw.js and HEAD skips it, so the two results show which side fails.
+        const checkFiles = async () => {
+          const probe = (url, method) =>
+            fetch(url, { method }).then(
+              (res) => res.status,
+              (error) => error.name,
+            );
+          const entry = entrySrc();
+          try {
+            const list = await fetch("/asset-list.json", { cache: "no-store" });
+            const files = (await list.json())
+              .map((f) => `/${f}`)
+              .filter((f) => /^\/assets\/index-.*\.js$/.test(f) && f !== entry);
+            const results = await Promise.all(
+              files.map(
+                async (f) =>
+                  `${f.slice(8)} GET ${await probe(f, "GET")} HEAD ${await probe(f, "HEAD")}`,
+              ),
+            );
+            report("import", {
+              message: results.join("; "),
+              sw: !!navigator.serviceWorker?.controller,
+            });
+          } catch (error) {
+            report("import", { message: `asset list: ${error.name}` });
+          }
+        };
+        // A page from before a deploy asks for files the new build removed; one reload fetches the current page.
+        addEventListener("vite:preloadError", (e) => {
+          let stale = true;
+          try {
+            const seen = sessionStorage.getItem("peachy-keen-stale");
+            sessionStorage.setItem("peachy-keen-stale", "1");
+            stale = !!seen;
+          } catch {}
+          if (stale) {
+            if (!importFailed) checkFiles();
+            importFailed = true;
+            return;
+          }
+          e.preventDefault();
+          location.reload();
+        });
+        // A script that fails to download fires its error only on the element, so listen in the capture phase.
+        addEventListener(
+          "error",
+          (e) => {
+            // Blocked third-party scripts, such as Cloudflare's analytics beacon, are not the game's.
+            if (
+              !(e.target instanceof HTMLScriptElement) ||
+              !e.target.src.startsWith(location.origin)
+            )
+              return;
+            report("script", { message: e.target.src });
+            if (!booted) peachyBoot.fail();
+          },
+          true,
+        );
+        // Counts where new players come from: one report on a browser's first visit, one more if it plays for a minute.
+        const params = new URLSearchParams(location.search);
+        const ref = params.get("ref")?.slice(0, 40) ?? "";
+        if (params.has("ref")) {
+          params.delete("ref");
+          const rest = params.toString();
+          history.replaceState(
+            history.state,
+            "",
+            `${location.pathname}${rest ? `?${rest}` : ""}${location.hash}`,
+          );
+        }
+        let firstVisit = false;
+        try {
+          // A save from before this report counts as a player who already came.
+          firstVisit =
+            !localStorage.getItem("peachy-keen-visited") &&
+            !localStorage.getItem("peachy-keen-idle");
+          localStorage.setItem("peachy-keen-visited", "1");
+        } catch {}
+        if (firstVisit) {
+          let from = "";
+          try {
+            from = document.referrer ? new URL(document.referrer).hostname : "";
+          } catch {}
+          report("visit", { ref, from });
+          setTimeout(() => {
+            if (done && hiddenFor() < PLAYED_MS / 2)
+              report("played", { ref, from });
+          }, PLAYED_MS);
+        }
+        wait();
+      })();
+    </script>
+  </body>
+</html>
