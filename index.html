@@ -244,6 +244,41 @@
       media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
       href="/jigglepeach/peachy-keen/splash-440x956-3x-landscape.png"
     />
+    <script>
+      // Static mirror: there is no API backend, so neutralize the game's
+      // /api/* calls (error/stats telemetry, visit sharing, copy-report
+      // beacon) instead of letting them 405 on every load.
+      (() => {
+        const isApi = (u) => {
+          try {
+            const s = typeof u === "string" ? u : u && u.url;
+            return (
+              typeof s === "string" &&
+              new URL(s, location.href).pathname.startsWith("/api/")
+            );
+          } catch {
+            return false;
+          }
+        };
+        try {
+          const origBeacon = navigator.sendBeacon.bind(navigator);
+          navigator.sendBeacon = (url, data) =>
+            isApi(url) ? true : origBeacon(url, data);
+        } catch {}
+        try {
+          const origFetch = window.fetch.bind(window);
+          window.fetch = (input, init) =>
+            isApi(input)
+              ? Promise.resolve(
+                  new Response("{}", {
+                    status: 404,
+                    headers: { "content-type": "application/json" },
+                  }),
+                )
+              : origFetch(input, init);
+        } catch {}
+      })();
+    </script>
     <script type="module" crossorigin src="/jigglepeach/assets/index-BrPgstJA.js"></script>
     <script src="/jigglepeach/assets/pumpkin-toggle.js"></script>
     <link rel="modulepreload" crossorigin href="/jigglepeach/assets/three-D4ATCD1o.js">
