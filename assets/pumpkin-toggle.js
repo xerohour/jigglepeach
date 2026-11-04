@@ -6,6 +6,10 @@
 // anything else loads the peach. Toggling sets the skin and reloads through
 // the game's model-swap flow (sessionStorage["peachy-keen-swap"]) so the
 // game drops straight back into play instead of replaying the intro.
+//
+// The shop is rendered by the game's minified bundle, whose exact aria
+// attributes aren't stable to guess at, so the Upgrades panel is located
+// with several fallback strategies instead of one brittle selector.
 (() => {
   const SKIN_KEY = "peachy-keen-intro-skin";
   const PREV_KEY = "peachy-keen-prev-skin";
@@ -48,8 +52,31 @@
   }
 
   function upgradesPanel() {
-    return document.querySelector(
-      'aside[aria-label="Shop"] [role="tabpanel"][aria-label="Upgrades"]',
+    // Strategy 1: the Upgrades tab's aria-controls -> panel id (ARIA tabs pattern).
+    const tabs = document.querySelectorAll('[role="tab"]');
+    for (const tab of tabs) {
+      if ((tab.textContent || "").includes("Upgrades")) {
+        const id = tab.getAttribute("aria-controls");
+        const panel = id && document.getElementById(id);
+        if (panel) return panel;
+        if (tab.id) {
+          const labelled = document.querySelector(
+            `[role="tabpanel"][aria-labelledby="${tab.id}"]`,
+          );
+          if (labelled) return labelled;
+        }
+      }
+    }
+    // Strategy 2: the tabpanel containing the Toys section.
+    const panels = document.querySelectorAll('[role="tabpanel"]');
+    for (const panel of panels) {
+      if ((panel.textContent || "").includes("Toys")) return panel;
+    }
+    // Strategy 3: original direct selector.
+    return (
+      document.querySelector(
+        'aside[aria-label="Shop"] [role="tabpanel"][aria-label="Upgrades"]',
+      ) || document.querySelector('[role="tabpanel"][aria-label="Upgrades"]')
     );
   }
 
